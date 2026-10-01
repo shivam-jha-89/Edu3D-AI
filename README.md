@@ -198,8 +198,8 @@ HoloLearn AI is fully operable via keyboard and mouse when a webcam is unavailab
 
 1. **Clone repository**:
    ```bash
-   git clone https://github.com/AkbarSheikh-debug/wondersnap.git hololearn-ai
-   cd hololearn-ai
+  git clone https://github.com/shivam-jha-89/Edu3D-AI.git
+   cd Edu3D-AI
    ```
 
 2. **Install dependencies**:
@@ -259,9 +259,9 @@ npx playwright test tests/camera.spec.js      # Video feed & MediaPipe landmark 
 
 ## Acknowledgments & Attribution
 
-HoloLearn AI is developed from the open-source **WonderSnap** project created by **Akbar Sheikh**:
-- Original WonderSnap Repository: [https://github.com/AkbarSheikh-debug/wondersnap](https://github.com/AkbarSheikh-debug/wondersnap)
-- Original Author: Akbar Sheikh
+**Edu3D-AI** is created and maintained by **Shivam Kumar**:
+- Repository: [https://github.com/shivam-jha-89/Edu3D-AI](https://github.com/shivam-jha-89/Edu3D-AI)
+- Author: Shivam Kumar
 - License: MIT License (see [LICENSE](LICENSE))
 
-We extend our deep gratitude to Akbar Sheikh for creating the high-performance WebGL2 transform feedback particle architecture and synthetic hand testing pipeline that made HoloLearn AI possible.
+We extend our deep gratitude to Akbar Sheikh for creating the high-performance WebGL2 transform feedback particle architecture and synthetic hand testing pipeline that made Edu3D-AI  possible.

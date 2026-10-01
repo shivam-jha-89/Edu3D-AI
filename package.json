@@ -1,0 +1,33 @@
+{
+  "name": "hololearn-ai",
+  "version": "2.0.0",
+  "description": "HoloLearn AI — Touch Knowledge. Explore Reality. AI-powered interactive 3D learning laboratory operated via hand gestures, WebGL2 GPU particles, voice synthesis, and multi-provider AI tutor.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [
+    "hololearn-ai",
+    "education",
+    "mediapipe",
+    "webgl2",
+    "gpu-particles",
+    "hand-tracking",
+    "gestures",
+    "stem",
+    "ai-tutor",
+    "interactive-learning"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HoloLearn AI — Touch Knowledge. Explore Reality.</title>
+  <meta name="description" content="Touch Knowledge. Explore Reality. An AI-powered interactive 3D learning experience controlled by your hands.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%2366e0ff' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%239b51e0' stroke-width='2' stroke-dasharray='4 4'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%2366e0ff'/%3E%3Cpath d='M22 32h20M32 22v20' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="gl" aria-label="Holographic particle learning scene"></canvas>
+  <canvas id="overlay" aria-hidden="true"></canvas>
+  <video id="cam" playsinline muted></video>
+
+  <header class="brand">
+    <div class="logo" aria-hidden="true"><span></span></div>
+    <div>
+      <div class="brand-name">HoloLearn AI</div>
+      <div class="brand-sub">Touch Knowledge · Explore Reality</div>
+    </div>
+  </header>
+
+  <aside id="panel" class="panel glass">
+    <section class="now">
+      <div class="cat" id="cat">Anatomy</div>
+      <h1 id="name">Human Heart</h1>
+      <p id="fact" class="fact"></p>
+    </section>
+
+    <section class="status">
+      <div class="row">
+        <span class="k">Scene</span><span id="statePill" class="pill" data-state="idle">idle</span>
+      </div>
+      <div class="row">
+        <span class="k">Hand</span><span id="posePill" class="pill pose">no hand</span>
+      </div>
+      <div class="meter">
+        <div class="meter-head"><span class="k">Hand openness</span><b id="openPct">0%</b></div>
+        <div class="bar"><i id="openBar"></i></div>
+      </div>
+      <div id="explodeBox" class="meter explode" hidden>
+        <div class="meter-head"><span class="k">Exploded view</span><b id="explodePct">0%</b></div>
+        <input id="explodeSlider" type="range" min="0" max="100" value="0" aria-label="Exploded view amount">
+        <div class="hint">Open hand to separate components · close fist to assemble</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="k">Hand Gesture Map</div>
+      <ul id="guide" class="guide"></ul>
+    </section>
+
+    <section class="buttons">
+      <button id="bSnap" title="Space: Summon / Dissolve">🫰 Summon</button>
+      <button id="bForm" title="F: Assemble model">✊ Assemble</button>
+      <button id="bOpen" title="O: Explode / Explore">✋ Explode</button>
+      <button id="bNext" title="V / →: Next model">✌ Next</button>
+    </section>
+  </aside>
+
+  <div id="bigTitle" class="big-title"><div class="t"></div><div class="s"></div></div>
+
+  <!-- Guided Lesson Progress Banner -->
+  <section id="guidedBanner" class="guided-banner glass" hidden aria-live="polite">
+    <div class="g-title">Guided Learning</div>
+    <div class="g-prog">STEP 1 OF 7</div>
+    <div class="g-inst">Summon the model with a snap gesture.</div>
+    <button id="guidedClose" class="x" title="Close guided lesson">✕</button>
+  </section>
+
+  <!-- Holo Quiz Banner -->
+  <section id="quiz" class="quiz glass" hidden aria-live="polite">
+    <div class="q"></div><div class="qs"></div><div class="qf"></div>
+    <button id="quizStop" class="x" title="Stop quiz (Q)">✕</button>
+  </section>
+
+  <!-- Interactive Component Card -->
+  <section id="partCard" class="part-card glass" hidden aria-live="polite">
+    <div class="phead">
+      <i class="swatch"></i>
+      <span class="pname"></span>
+      <button id="partClose" class="x" title="Close (Esc)">✕</button>
+    </div>
+    <div class="pinfo"></div>
+    <div class="pfact"></div>
+    <div class="pobj"></div>
+    <div class="pmodel"></div>
+    <div class="pactions">
+      <button id="partPull">🤏 Pull out</button>
+      <button id="partSpeak">🔊 Read aloud</button>
+      <button id="partAskAi">🤖 Ask AI</button>
+    </div>
+    <div class="phint">Point ☝ to inspect · pinch 🤏 to pull out into exploded view</div>
+  </section>
+
+  <!-- Holo Tutor (AI Tutor Panel) -->
+  <section id="tutorCard" class="tutor-card glass" hidden aria-live="polite">
+    <div class="tutor-head">
+      <div class="tutor-title"><span>🤖</span> Holo Tutor</div>
+      <button id="tutorClose" class="x" title="Close tutor">✕</button>
+    </div>
+    <div class="level-selector">
+      <button class="level-btn" data-level="beginner">Beginner</button>
+      <button class="level-btn active" data-level="intermediate">Intermediate</button>
+      <button class="level-btn" data-level="advanced">Advanced</button>
+    </div>
+    <div id="tutorResponse" class="tutor-response">
+      Welcome to HoloLab! Ask me anything about this model or point at a component to explore how it functions.
+    </div>
+    <div class="tutor-chips">
+      <button class="tutor-chip" data-prompt="Explain this simply">Explain simply</button>
+      <button class="tutor-chip" data-prompt="Why is this important?">Why important?</button>
+      <button class="tutor-chip" data-prompt="How does it work?">How it works</button>
+      <button class="tutor-chip" data-prompt="Tell me a surprising fact">Surprising fact</button>
+      <button class="tutor-chip" data-prompt="Quiz me on this">Quiz me</button>
+    </div>
+    <div class="tutor-input-row">
+      <input id="tutorInput" class="tutor-input" type="text" placeholder="Ask Holo Tutor..." aria-label="Ask Holo Tutor question">
+      <button id="tutorSend" class="tutor-send">Ask</button>
+    </div>
+  </section>
+
+  <nav id="catalog" class="catalog glass" aria-label="Learning Model Library">
+    <div id="catTabs" class="tabs" role="tablist"></div>
+    <div id="catChips" class="chips"></div>
+  </nav>
+
+  <div class="top-right">
+    <div id="stats" class="stats glass"></div>
+    <div class="icons">
+      <button id="bCam" class="icon" title="Camera on/off (C)">📷</button>
+      <button id="bLabels" class="icon on" title="Component labels (L)">🏷️</button>
+      <button id="bRotate" class="icon on" title="Auto-rotate (R)">⟳</button>
+      <button id="bHandRot" class="icon on" title="Hand rotation: twist hand to rotate (G)">🔄</button>
+      <button id="bCut" class="icon" title="Holo X-Ray cross-section (X)">✂</button>
+      <button id="bQuiz" class="icon" title="Holo Quiz challenge (Q)">🎓</button>
+      <button id="bGuided" class="icon" title="Guided Learning lesson">📖</button>
+      <button id="bTutor" class="icon" title="Holo Tutor AI">🤖</button>
+      <button id="bVoice" class="icon" title="Voice commands + speech (M)">🎤</button>
+      <button id="bRec" class="icon" title="Record session video (K)">⏺</button>
+      <button id="bDemo" class="icon" title="Play flagship demo (D)">▶</button>
+      <button id="bAchieve" class="icon" title="Achievements">🏆</button>
+      <button id="bHelp" class="icon" title="Keyboard & gesture guide (H)">?</button>
+    </div>
+  </div>
+
+  <div id="help" class="help glass" hidden>
+    <h2>Controls &amp; Gestures <button id="helpClose" class="x" title="Close help">✕</button></h2>
+    <table>
+      <tr><td><kbd>Space</kbd></td><td>Snap 🫰 — summon particles / dissolve</td></tr>
+      <tr><td><kbd>F</kbd> / <kbd>O</kbd></td><td>Fist ✊ (assemble) / Open hand ✋ (explode / explore)</td></tr>
+      <tr><td><kbd>V</kbd> <kbd>→</kbd> <kbd>←</kbd></td><td>Next ✌ / previous learning model</td></tr>
+      <tr><td><kbd>E</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Toggle exploded view / adjust separation</td></tr>
+      <tr><td>twist hand</td><td>Rotate the model · raise/lower to tilt (<kbd>G</kbd> on/off)</td></tr>
+      <tr><td>☝ point</td><td>Select component (dwell to pick or click)</td></tr>
+      <tr><td>🤏 pinch</td><td>Pull selected component out into exploded view</td></tr>
+      <tr><td>🙌 two hands</td><td>Spread / bring together to zoom (<kbd>+</kbd> <kbd>-</kbd> <kbd>0</kbd>)</td></tr>
+      <tr><td><kbd>X</kbd> <kbd>,</kbd> <kbd>.</kbd></td><td>Holo X-Ray cross-section (hand/mouse moves slice)</td></tr>
+      <tr><td><kbd>Q</kbd></td><td>Holo Quiz challenge</td></tr>
+      <tr><td><kbd>M</kbd></td><td>Voice control &amp; read aloud</td></tr>
+      <tr><td><kbd>K</kbd></td><td>Record WebM demo video locally</td></tr>
+      <tr><td><kbd>I</kbd></td><td>Describe selected component</td></tr>
+      <tr><td><kbd>D</kbd></td><td>Play flagship automated demo</td></tr>
+      <tr><td><kbd>C</kbd></td><td>Toggle camera tracking</td></tr>
+      <tr><td><kbd>R</kbd> <kbd>L</kbd> <kbd>T</kbd></td><td>Auto-rotate · labels · particle trails</td></tr>
+    </table>
+  </div>
+
+  <div id="achievements" class="achievements glass" hidden>
+    <h2>Learning Achievements <button id="achieveClose" class="x" title="Close achievements">✕</button></h2>
+    <ul id="achieveList" class="achieve-list"></ul>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Futuristic HoloLearn AI Start Screen -->
+  <div id="start" class="start">
+    <div class="start-card glass">
+      <div class="logo big" aria-hidden="true"><span></span></div>
+      <h1>HoloLearn AI</h1>
+      <div class="start-tagline">TOUCH KNOWLEDGE · EXPLORE REALITY</div>
+      <p>An AI-powered interactive 3D learning laboratory where you explore anatomy, biology, engineering, and world landmarks through glowing GPU particle holograms controlled directly by your bare hands.</p>
+      
+      <div class="start-philosophy">
+        <span>SEE</span> → <span>TOUCH</span> → <span>EXPLORE</span> → <span>UNDERSTAND</span>
+      </div>
+
+      <ol class="steps">
+        <li><b>Snap 🫰</b> your fingers or press Space to activate the holographic particle field.</li>
+        <li>Make a <b>fist ✊</b> to materialize the 3D educational model.</li>
+        <li><b>Open ✋</b> your hand: organs and machines <b>explode</b> outward to reveal every internal component with its function and biological/engineering role.</li>
+        <li><b>Twist 🔄</b> your hand to rotate the model; raise or lower to tilt; use <b>two hands 🙌</b> to zoom.</li>
+        <li><b>Point ☝</b> at any component to inspect it, and <b>pinch 🤏</b> to pull it out.</li>
+        <li>Engage <b>Holo X-Ray ✂</b> to inspect cross-sections, <b>Holo Tutor 🤖</b> for explanations, and <b>Holo Quiz 🎓</b> to test your knowledge!</li>
+      </ol>
+
+      <div class="start-buttons">
+        <button id="bStartCam" class="primary">Enter HoloLab (Camera)</button>
+        <button id="bStartNoCam">Explore Without Camera</button>
+      </div>
+      <div class="privacy-badge">
+        🔒 Camera processing occurs locally in your browser. Video is never uploaded.
+      </div>
+      <p id="startMsg" class="start-msg"></p>
+    </div>
+  </div>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
